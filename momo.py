@@ -6,22 +6,37 @@ logger = logging.getLogger(__name__)
 
 
 class MomoPayment:
-    def check_network(self,phone_number):
+    def __init__(self,phone_number,email,name) -> None:
+        self.phone_number = phone_number
+        self.email = email
+        self.name = name
 
-        if len(phone_number) != 10:
+
+    def check_network(self, phone_number=None):
+        # Use self.phone_number if phone_number is not provided
+        number_to_check = phone_number if phone_number is not None else self.phone_number
+
+        # Ensure the phone number is a string and its length is 10
+        if not isinstance(number_to_check, str) or len(number_to_check) != 10:
             return "Invalid phone number"
 
-        if phone_number[:3] in ["020", "050"]:
+        # Determine the network based on the prefix
+        prefix = number_to_check[:3]
+        if prefix in ["020", "050"]:
             network = "VOD"
-        elif phone_number[:3] in ["027", "057", "026", "056"]:
+        elif prefix in ["027", "057", "026", "056"]:
             network = "ATL"
-        elif phone_number[:3] in ["059", "024", "054"]:
+        elif prefix in ["059", "024", "054"]:
             network = "MTN"
+        else:
+            network = "Unknown network"
 
+        print(network)
         return network
 
 
-    def send_mobile_money_prompt(self,amount, email, phone_number):
+
+    def send_mobile_money_prompt(self,amount):
         endpoint = "https://api.paystack.co/charge"
         secret_key = config("PAYSTACK_KEY")
         headers = {
@@ -31,14 +46,14 @@ class MomoPayment:
 
         print(headers)
 
-        network = self.check_network(phone_number)
+        network = self.check_network(self.phone_number)
         logger.warning(network)
         # Prepare request payload
         payload = {
             "amount": int(amount) * 100,
-            "email": email,
+            "email": self.email,
             "currency": "GHS",
-            "mobile_money": {"phone": phone_number, "provider": network},
+            "mobile_money": {"phone": self.phone_number, "provider": network},
         }
 
         response = requests.post(endpoint, json=payload, headers=headers)
@@ -96,8 +111,6 @@ class MomoPayment:
 
         bank_code = self.check_network(account_number)
 
-        logger.warning(bank_code)
-
         # Prepare request payload
         payload = {
             "type": "mobile_money",
@@ -108,11 +121,10 @@ class MomoPayment:
         }
 
         response = requests.post(endpoint, json=payload, headers=headers)
-        print(f"momoreceipient :{response.json()}")
         return response.json()
 
 
-    def transfer_funds(self,amount, phone_number, name):
+    def transfer_funds(self,amount,phone_number,name):
         endpoint = "https://api.paystack.co/transfer"
         secret_key = config("PAYSTACK_KEY")
         headers = {
@@ -124,7 +136,7 @@ class MomoPayment:
         # Prepare request payload
         payload = {
             "source": "balance",
-            "amount": amount,
+            "amount": amount * 100,
             "reference": config("PAYSTACK_REFERENCE"),
             "recipient": recipient_code["data"]["recipient_code"],
             "reason": "test",
@@ -135,5 +147,33 @@ class MomoPayment:
         response = requests.post(endpoint, json=payload, headers=headers)
         return response.json()
     
+
+    def check_account_balance(self):
+        endpoint = "https://api.paystack.co/balance"
+        secret_key = config("PAYSTACK_KEY")
+        headers = {
+            "Authorization": f"Bearer {secret_key}",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.get(endpoint, headers=headers)
+        return response.json()
+
+    def fetch_transaction_statements(self, start_date=None, end_date=None, per_page=50, page=1):
+        endpoint = "https://api.paystack.co/transaction"
+        secret_key = config("PAYSTACK_KEY")
+        headers = {
+            "Authorization": f"Bearer {secret_key}",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "per_page": per_page,
+            "page": page,
+        }
+
+        response = requests.get(endpoint, headers=headers, params=params)
+        return response.json()
 
 

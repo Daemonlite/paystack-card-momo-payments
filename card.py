@@ -90,3 +90,21 @@ class CardPayment:
             return {"status": False, "message": str(e)}
 
         return response.json()
+    
+
+    def fetch_transaction_statements(self, start_date=None, end_date=None, per_page=50, page=1):
+        endpoint = "https://api.paystack.co/transaction"
+        secret_key = config("PAYSTACK_KEY")
+        headers = {
+            "Authorization": f"Bearer {secret_key}",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "per_page": per_page,
+            "page": page,
+        }
+        response = requests.get(endpoint, headers=headers, params=params)
+        return response.json()
+    
