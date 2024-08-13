@@ -11,11 +11,6 @@ from formatter import format_transaction_details, format_transactions_to_excel
 with open('statement.json') as file:
     transactions = json.load(file)
 
-# Loop through transactions and format each one
-formatted_transactions = ""
-for transaction in transactions:
-    formatted_transactions += format_transaction_details(transaction) + "\n"
-
 def send_email():
     # Email configuration
     sender_email = "daemonlite73@gmail.com"
