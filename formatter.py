@@ -2,29 +2,6 @@ from datetime import datetime
 import openpyxl
 from openpyxl.styles import Alignment, Font
 
-# Function to format the transaction details
-def format_transaction_details(transaction):
-    customer = transaction['customer']
-    authorization = transaction['authorization']
-
-    formatted_details = f"""
-    Transaction Statement:
-    -----------------------
-    Transaction ID: {transaction['id']}
-    Status: {transaction['status'].capitalize()}
-    Amount: {transaction['currency']} {transaction['amount'] / 100:.2f}
-    Message: {transaction['message']}
-    Date Created: {transaction['created_at']}
-    Payment Channel: {transaction['channel'].capitalize()}
-    Bank: {authorization['bank']}
-    Authorization Code: {authorization['authorization_code']}
-    Requested Amount: {transaction['currency']} {transaction['requested_amount'] / 100:.2f}
-    """
-
-    return formatted_details
-
-
-
 
 def format_transactions_to_excel(transactions, file_name='transactions_details.xlsx'):
     # Create a new Excel workbook and select the active sheet

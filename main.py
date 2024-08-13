@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 from momo import MomoPayment
+from mailer import send_email
 
 momo = MomoPayment(
     phone_number='0209414099',
@@ -64,6 +65,8 @@ if __name__ == "__main__":
                 with open('statement.json', 'w') as f:
                     json.dump(transaction_data, f, indent=4)  # Using indent for pretty-printing
                 
+                send_email()
+                
                 print(f"[{datetime.now().strftime('%H:%M:%S.%f')}] - statement has been sent through mail")
                     
             else:
@@ -112,6 +115,24 @@ if __name__ == "__main__":
                 
                 except Exception as e:
                     print(f"[{datetime.now().strftime('%H:%M:%S.%f')}] - An unexpected error occurred: {e}")
+        else:
+            print()
+            print()
+            print('----------------------------------------------------------------')
+            print(f"[{datetime.now().strftime('%H:%M:%S.%f')}] - Invalid Option")
+
+            print('----------------------------------------------------------------')
+
+            print()
+            print()
+
+ 
+
+
+
+
+
+
 
 
 

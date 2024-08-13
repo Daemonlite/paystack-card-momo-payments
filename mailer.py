@@ -5,7 +5,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 from decouple import config
 import json
-from formatter import format_transaction_details, format_transactions_to_excel
+from formatter import format_transactions_to_excel
 
 # Load transaction data from JSON
 with open('statement.json') as file:
@@ -52,4 +52,3 @@ def send_email():
     except Exception as e:
         print(f"Failed to send email: {str(e)}")
 
-send_email()
